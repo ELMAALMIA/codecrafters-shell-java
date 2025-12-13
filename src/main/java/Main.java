@@ -56,21 +56,25 @@ public class Main {
         }
 
         String targetPath = cmdTab[1];
-
         if (targetPath.equals("~")) {
-            targetPath = System.getProperty("user.home");
+            String home = System.getenv("HOME");
+            if (home == null) {
+                home = System.getProperty("user.home");
+            }
+            targetPath = home;
         } else if (targetPath.startsWith("~/")) {
-            targetPath = System.getProperty("user.home") + targetPath.substring(1);
+            String home = System.getenv("HOME");
+            if (home == null) {
+                home = System.getProperty("user.home");
+            }
+            targetPath = home + targetPath.substring(1);
         }
 
-
         File newDir = new File(targetPath);
-
 
         if (!newDir.isAbsolute()) {
             newDir = new File(currentDir, targetPath);
         }
-
 
         if (newDir.exists() && newDir.isDirectory()) {
             try {
