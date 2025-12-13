@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.IOException;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -45,7 +46,26 @@ public class Main {
                     }
                 }
             } else {
-                System.out.println(cmdTab[0] + ": command not found");
+                String pathExe = "";
+                for (String dir : directories) {
+                    File file = new File(dir, cmdTab[0]);
+                    if (file.exists() && file.canExecute()) {
+                        pathExe = file.getAbsolutePath();
+                        break;
+                    }
+                }
+                if (!pathExe.isEmpty()) {
+                    try {
+                        ProcessBuilder pb = new ProcessBuilder(cmdTab);
+                        pb.inheritIO();
+                        Process process = pb.start();
+                        process.waitFor();
+                    } catch (IOException | InterruptedException e) {
+                        System.out.println("Error " + e.getMessage());
+                    }
+                } else {
+                    System.out.println(cmdTab[0] + ": command not found");
+                }
             }
         }
     }
