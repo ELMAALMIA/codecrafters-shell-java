@@ -9,9 +9,13 @@ public class Main {
         while (true){
             System.out.print("$ ");
             String  cmd = scanner.nextLine();
+            if(cmd.equals("exit")){
+                break;
+            }
             if (!validate){
                 System.out.println(cmd+": command not found");
             }
+
         }
 
     }
