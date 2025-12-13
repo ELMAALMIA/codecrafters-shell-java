@@ -13,59 +13,68 @@ public class Main {
         }
         Set<String> builtins = Set.of("exit", "echo", "type");
 
+        label:
         while (true) {
             System.out.print("$ ");
             String cmd = scanner.nextLine();
             String[] cmdTab = cmd.split(" ");
 
-            if (cmdTab[0].equals("exit")) {
-                break;
-            } else if (cmdTab[0].equals("echo")) {
-                for (int i = 1; i < cmdTab.length; i++) {
-                    if (i > 1) System.out.print(" ");
-                    System.out.print(cmdTab[i]);
-                }
-                System.out.println();
-            } else if (cmdTab[0].equals("type")) {
-                if (builtins.contains(cmdTab[1])) {
-                    System.out.println(cmdTab[1] + " is a shell builtin");
-                } else {
-                    boolean found = false;
-                    if (pathEnv != null) {
-                        for (String dir : directories) {
-                            File file = new File(dir, cmdTab[1]);
-                            if (file.exists() && file.canExecute()) {
-                                System.out.println(cmdTab[1] + " is " + file.getAbsolutePath());
-                                found = true;
-                                break;
+            switch (cmdTab[0]) {
+                case "exit":
+                    break label;
+                case "pwd":
+
+                    System.out.println(new File("").getAbsolutePath());
+                    break;
+                case "echo":
+                    for (int i = 1; i < cmdTab.length; i++) {
+                        if (i > 1) System.out.print(" ");
+                        System.out.print(cmdTab[i]);
+                    }
+                    System.out.println();
+                    break;
+                case "type":
+                    if (builtins.contains(cmdTab[1])) {
+                        System.out.println(cmdTab[1] + " is a shell builtin");
+                    } else {
+                        boolean found = false;
+                        if (pathEnv != null) {
+                            for (String dir : directories) {
+                                File file = new File(dir, cmdTab[1]);
+                                if (file.exists() && file.canExecute()) {
+                                    System.out.println(cmdTab[1] + " is " + file.getAbsolutePath());
+                                    found = true;
+                                    break;
+                                }
                             }
                         }
+                        if (!found) {
+                            System.out.println(cmdTab[1] + ": not found");
+                        }
                     }
-                    if (!found) {
-                        System.out.println(cmdTab[1] + ": not found");
+                    break;
+                default:
+                    String pathExe = "";
+                    for (String dir : directories) {
+                        File file = new File(dir, cmdTab[0]);
+                        if (file.exists() && file.canExecute()) {
+                            pathExe = file.getAbsolutePath();
+                            break;
+                        }
                     }
-                }
-            } else {
-                String pathExe = "";
-                for (String dir : directories) {
-                    File file = new File(dir, cmdTab[0]);
-                    if (file.exists() && file.canExecute()) {
-                        pathExe = file.getAbsolutePath();
-                        break;
+                    if (!pathExe.isEmpty()) {
+                        try {
+                            ProcessBuilder pb = new ProcessBuilder(cmdTab);
+                            pb.inheritIO();
+                            Process process = pb.start();
+                            process.waitFor();
+                        } catch (IOException | InterruptedException e) {
+                            System.out.println("Error " + e.getMessage());
+                        }
+                    } else {
+                        System.out.println(cmdTab[0] + ": command not found");
                     }
-                }
-                if (!pathExe.isEmpty()) {
-                    try {
-                        ProcessBuilder pb = new ProcessBuilder(cmdTab);
-                        pb.inheritIO();
-                        Process process = pb.start();
-                        process.waitFor();
-                    } catch (IOException | InterruptedException e) {
-                        System.out.println("Error " + e.getMessage());
-                    }
-                } else {
-                    System.out.println(cmdTab[0] + ": command not found");
-                }
+                    break;
             }
         }
     }
