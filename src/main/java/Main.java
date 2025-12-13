@@ -9,12 +9,22 @@ public class Main {
         while (true){
             System.out.print("$ ");
             String  cmd = scanner.nextLine();
+
+            String cmdtab[] =cmd.split(" ");
+            if(cmdtab[0].equals("echo")){
+                validate = true;
+                for (int i = 1; i < cmdtab.length; i++) {
+                    System.out.print(cmdtab[i] + " ");
+                }
+                System.out.println();
+            }
             if(cmd.equals("exit")){
                 break;
             }
             if (!validate){
                 System.out.println(cmd+": command not found");
             }
+            validate=false;
 
         }
 
