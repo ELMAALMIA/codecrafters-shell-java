@@ -11,7 +11,7 @@ public class Main {
         if (pathEnv != null) {
             directories = pathEnv.split(":");
         }
-        Set<String> builtins = Set.of("exit", "echo", "type");
+        Set<String> builtins = Set.of("exit", "echo", "type", "pwd");
 
         label:
         while (true) {
