@@ -8,7 +8,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         String  cmd = scanner.nextLine();
         if (!validate){
-            System.out.print(cmd+" : command not found");
+            System.out.print(cmd+": command not found");
         }
     }
 }
