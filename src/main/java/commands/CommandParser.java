@@ -8,12 +8,13 @@ public class CommandParser {
         List<String> arguments = new ArrayList<>();
         StringBuilder currentArgument = new StringBuilder();
         boolean inSingleQuotes = false;
+        boolean inDoubleQuotes = false;
         int i = 0;
 
         while (i < input.length()) {
             char c = input.charAt(i);
 
-            if (c == '\'') {
+            if (c == '\'' && !inDoubleQuotes) {
                 if (inSingleQuotes) {
                     inSingleQuotes = false;
                     i++;
@@ -29,7 +30,23 @@ public class CommandParser {
                     i++;
                     continue;
                 }
-            } else if (inSingleQuotes) {
+            } else if (c == '"' && !inSingleQuotes) {
+                if (inDoubleQuotes) {
+                    inDoubleQuotes = false;
+                    i++;
+                    if (i < input.length() && input.charAt(i) == '"') {
+                        inDoubleQuotes = true;
+                        continue;
+                    }
+                    if (i >= input.length() || input.charAt(i) == ' ' || input.charAt(i) == '\t') {
+                        continue;
+                    }
+                } else {
+                    inDoubleQuotes = true;
+                    i++;
+                    continue;
+                }
+            } else if (inSingleQuotes || inDoubleQuotes) {
                 currentArgument.append(c);
                 i++;
             } else if (c == ' ' || c == '\t') {
