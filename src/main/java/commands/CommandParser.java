@@ -14,52 +14,77 @@ public class CommandParser {
         while (i < input.length()) {
             char c = input.charAt(i);
 
-            if (c == '\'' && !inDoubleQuotes) {
-                if (inSingleQuotes) {
-                    inSingleQuotes = false;
-                    i++;
-                    if (i < input.length() && input.charAt(i) == '\'') {
+            switch (c) {
+                case '\\':
+                    if (!inSingleQuotes && !inDoubleQuotes) {
+                        i++;
+                        if (i < input.length()) {
+                            char nextChar = input.charAt(i);
+                            currentArgument.append(nextChar);
+                            i++;
+                        }
+                    } else {
+                        currentArgument.append(c);
+                        i++;
+                    }
+                    break;
+
+                case '\'':
+                    if (inSingleQuotes) {
+                        inSingleQuotes = false;
+                        i++;
+                        if (i < input.length() && input.charAt(i) == '\'') {
+                            inSingleQuotes = true;
+                        } else if (i >= input.length() || input.charAt(i) == ' ' || input.charAt(i) == '\t') {
+                            break;
+                        }
+                    } else if (!inDoubleQuotes) {
                         inSingleQuotes = true;
-                        continue;
+                        i++;
+                    } else {
+                        currentArgument.append(c);
+                        i++;
                     }
-                    if (i >= input.length() || input.charAt(i) == ' ' || input.charAt(i) == '\t') {
-                        continue;
-                    }
-                } else {
-                    inSingleQuotes = true;
-                    i++;
-                    continue;
-                }
-            } else if (c == '"' && !inSingleQuotes) {
-                if (inDoubleQuotes) {
-                    inDoubleQuotes = false;
-                    i++;
-                    if (i < input.length() && input.charAt(i) == '"') {
+                    break;
+
+                case '"':
+                    if (inDoubleQuotes) {
+                        inDoubleQuotes = false;
+                        i++;
+                        if (i < input.length() && input.charAt(i) == '"') {
+                            inDoubleQuotes = true;
+                        } else if (i >= input.length() || input.charAt(i) == ' ' || input.charAt(i) == '\t') {
+                            break;
+                        }
+                    } else if (!inSingleQuotes) {
                         inDoubleQuotes = true;
-                        continue;
+                        i++;
+                    } else {
+                        currentArgument.append(c);
+                        i++;
                     }
-                    if (i >= input.length() || input.charAt(i) == ' ' || input.charAt(i) == '\t') {
-                        continue;
+                    break;
+
+                case ' ':
+                case '\t':
+                    if (!inSingleQuotes && !inDoubleQuotes) {
+                        if (currentArgument.length() > 0) {
+                            arguments.add(currentArgument.toString());
+                            currentArgument.setLength(0);
+                        }
+                        while (i < input.length() && (input.charAt(i) == ' ' || input.charAt(i) == '\t')) {
+                            i++;
+                        }
+                    } else {
+                        currentArgument.append(c);
+                        i++;
                     }
-                } else {
-                    inDoubleQuotes = true;
+                    break;
+
+                default:
+                    currentArgument.append(c);
                     i++;
-                    continue;
-                }
-            } else if (inSingleQuotes || inDoubleQuotes) {
-                currentArgument.append(c);
-                i++;
-            } else if (c == ' ' || c == '\t') {
-                if (currentArgument.length() > 0) {
-                    arguments.add(currentArgument.toString());
-                    currentArgument.setLength(0);
-                }
-                while (i < input.length() && (input.charAt(i) == ' ' || input.charAt(i) == '\t')) {
-                    i++;
-                }
-            } else {
-                currentArgument.append(c);
-                i++;
+                    break;
             }
         }
 
